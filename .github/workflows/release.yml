@@ -3,21 +3,21 @@ name: Tauri Build & Release
 on:
   push:
     tags:
-      - 'v*.*.*'    # e.g. v1.0.0
-      - 'test-*'    # e.g. test-build
+      - 'v*.*.*'
+      - 'test-*'
 
 jobs:
   build:
     strategy:
       matrix:
-        platform: [ubuntu-latest, macos-latest, windows-latest]
+        platform: [windows-latest, macos-latest]
     runs-on: ${{ matrix.platform }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Rust toolchain
+      - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: Set up Node.js
@@ -25,61 +25,45 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Node.js dependencies
+      - name: Install Node.js deps
         run: npm install
 
-      - name: Build frontend (Vite + SvelteKit)
+      - name: Build frontend
         run: npm run build
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli --locked
 
-      - name: Install Linux dependencies (only on Ubuntu)
-        if: matrix.platform == 'ubuntu-latest'
-        run: |
-          sudo apt update
-          sudo apt install -y libwebkit2gtk-4.0-dev libgtk-3-dev \
-            libayatana-appindicator3-dev librsvg2-dev curl wget \
-            build-essential libssl-dev
-
-      - name: Build Tauri app
+      - name: Build app
         run: npm run tauri build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3.1.3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.platform }}-bundle
           path: src-tauri/target/release/bundle/**/*
 
   release:
-    name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows artifacts
-        uses: actions/download-artifact@v3.1.3
+        uses: actions/download-artifact@v3
         with:
           name: windows-latest-bundle
           path: ./release/windows
 
       - name: Download macOS artifacts
-        uses: actions/download-artifact@v3.1.3
+        uses: actions/download-artifact@v3
         with:
           name: macos-latest-bundle
           path: ./release/macos
 
-      - name: Download Linux artifacts
-        uses: actions/download-artifact@v3.1.3
-        with:
-          name: ubuntu-latest-bundle
-          path: ./release/linux
-
-      - name: Upload to GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             ./release/windows/**/*.{msi,exe}
             ./release/macos/**/*.{dmg,zip}
-            ./release/linux/**/*.{AppImage,deb}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
