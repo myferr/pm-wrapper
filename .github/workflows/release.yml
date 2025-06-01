@@ -61,7 +61,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          body: ${{ startsWith(github.ref_name, 'test-') ? '⚠️ This is a test release.' : 'Stable production release.' }}
+          body: ${{ contains(github.ref_name, 'test-') && '⚠️ This is a test release.' || 'Stable production release.' }}
           files: |
             ./release/windows/**/*.msi
             ./release/windows/**/*.exe
