@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    protonmail_desktop_client_lib::run()
+    pm_wrapper_lib::run()
 }

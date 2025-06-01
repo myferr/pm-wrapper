@@ -1,6 +1,6 @@
 [package]
 name = "ProtonMail"
-version = "0.0.1"
+version = "0.0.2"
 description = "An unofficial desktop app for ProtonMail"
 authors = ["MyferIsADev"]
 edition = "2021"
