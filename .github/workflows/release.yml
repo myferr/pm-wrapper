@@ -3,8 +3,8 @@ name: Tauri Build & Release
 on:
   push:
     tags:
-      - 'v*.*.*'
-      - 'test-*'
+      - 'v*.*.*'    # e.g. v1.0.0
+      - 'test-*'    # e.g. test-build
 
 jobs:
   build:
@@ -34,7 +34,7 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --locked
 
-      - name: Install Linux dependencies (Linux only)
+      - name: Install Linux dependencies (only on Ubuntu)
         if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt update
@@ -45,10 +45,10 @@ jobs:
       - name: Build Tauri app
         run: npm run tauri build
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3.1.3
         with:
-          name: ${{ matrix.platform }}-artifacts
+          name: ${{ matrix.platform }}-bundle
           path: src-tauri/target/release/bundle/**/*
 
   release:
@@ -57,29 +57,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3.1.3
         with:
-          name: windows-latest-artifacts
+          name: windows-latest-bundle
           path: ./release/windows
 
       - name: Download macOS artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3.1.3
         with:
-          name: macos-latest-artifacts
+          name: macos-latest-bundle
           path: ./release/macos
 
       - name: Download Linux artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v3.1.3
         with:
-          name: ubuntu-latest-artifacts
+          name: ubuntu-latest-bundle
           path: ./release/linux
 
-      - name: Create GitHub Release
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./release/windows/**/*.{msi,exe,zip}
+            ./release/windows/**/*.{msi,exe}
             ./release/macos/**/*.{dmg,zip}
-            ./release/linux/**/*.{AppImage,deb,rpm,tar.gz}
+            ./release/linux/**/*.{AppImage,deb}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
