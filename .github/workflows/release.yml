@@ -61,7 +61,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          body: ${{ github.ref_name.startsWith('test-') && '⚠️ This is a test release.' || 'Stable production release.' }}
+          body: ${{ startsWith(github.ref_name, 'test-') ? '⚠️ This is a test release.' : 'Stable production release.' }}
           files: |
             ./release/windows/**/*.msi
             ./release/windows/**/*.exe
@@ -70,3 +70,4 @@ jobs:
             ./release/macos/**/*.app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
