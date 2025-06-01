@@ -63,7 +63,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./release/windows/**/*.{msi,exe}
-            ./release/macos/**/*.{dmg,zip}
+            ./release/windows/**/*.msi
+            ./release/windows/**/*.exe
+            ./release/macos/**/*.dmg
+            ./release/macos/**/*.zip
+            ./release/macos/**/*.app
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
