@@ -43,7 +43,6 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -60,6 +59,9 @@ jobs:
       - name: Create GitHub Release and upload binaries
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ github.ref_name.startsWith('test-') && '⚠️ This is a test release.' || 'Stable production release.' }}
           files: |
             ./release/windows/**/*.msi
             ./release/windows/**/*.exe
